@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx creator="https://gpx.studio" version="1.1" xmlns="http://www.topografix.com/GPX/1/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd http://www.garmin.com/xmlschemas/PowerExtension/v1 http://www.garmin.com/xmlschemas/PowerExtensionv1.xsd http://www.topografix.com/GPX/gpx_style/0/2 http://www.topografix.com/GPX/gpx_style/0/2/gpx_style.xsd" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:gpxpx="http://www.garmin.com/xmlschemas/PowerExtension/v1" xmlns:gpx_style="http://www.topografix.com/GPX/gpx_style/0/2">
+  <metadata>
+    <name>New file 5</name>
+    <author>
+      <name>gpx.studio</name>
+      <link href="https://gpx.studio"/>
+    </author>
+  </metadata>
+  <trk>
+    <name>New file 5</name>
+    <trkseg>
+      <trkpt lat="41.876903" lon="-87.629268">
+        <ele>181</ele>
+      </trkpt>
+      <trkpt lat="41.876842" lon="-87.634742">
+        <ele>181</ele>
+      </trkpt>
+      <trkpt lat="41.876822" lon="-87.635905">
+        <ele>181.05</ele>
+      </trkpt>
+      <trkpt lat="41.876813" lon="-87.636629">
+        <ele>183</ele>
+      </trkpt>
+      <trkpt lat="41.876812" lon="-87.636803">
+        <ele>182.67</ele>
+      </trkpt>
+      <trkpt lat="41.876811" lon="-87.636951">
+        <ele>181.03</ele>
+      </trkpt>
+      <trkpt lat="41.87681" lon="-87.637053">
+        <ele>177.63</ele>
+      </trkpt>
+      <trkpt lat="41.876799" lon="-87.637773">
+        <ele>183.3</ele>
+      </trkpt>
+      <trkpt lat="41.876771" lon="-87.639618">
+        <ele>183</ele>
+      </trkpt>
+      <trkpt lat="41.876765" lon="-87.640304">
+        <ele>181.56</ele>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
