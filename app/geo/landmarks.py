@@ -2,7 +2,7 @@ import math
 import httpx
 from pydantic import BaseModel
 from app.config import MAPBOX_TOKEN
-from app.geo.distance import haversine
+from app.geo.distance import haversine, bearing, is_ahead
 
 
 
@@ -63,7 +63,8 @@ def get_nearby_landmarks(lat, lon, radius_m, limit=5):
     return landmarks
 
 
+
+
 if __name__ == "__main__":
     results = get_nearby_landmarks(41.876903, -87.629268, 3000)  # Chicago
-    for lm in results:
-        print(lm)
+    print("haha")

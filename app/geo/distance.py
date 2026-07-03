@@ -23,3 +23,9 @@ def bearing(lat1, lon1, lat2, lon2):
     )
     bearing_degrees = math.degrees(math.atan2(y, x))
     return (bearing_degrees + 360) % 360
+
+def is_ahead(heading, bearing_to_landmark, threshold=90):
+    diff = abs(heading - bearing_to_landmark) % 360
+    if diff > 180:
+        diff = 360 - diff
+    return diff < threshold
