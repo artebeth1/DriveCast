@@ -3,7 +3,10 @@ import httpx
 from pydantic import BaseModel
 from app.config import MAPBOX_TOKEN
 from app.geo.distance import haversine, bearing, is_ahead
+from google import genai
+from google.genai import types
 
+client = genai.Client()
 
 
 class Landmark(BaseModel):
@@ -15,8 +18,7 @@ class Landmark(BaseModel):
     distance_m: float
 
 
-def get_nearby_landmarks(lat, lon, radius_m, limit=5):
-    category = "coffee"
+def get_nearby_landmarks(lat: float, lon: float, category: str, radius_m: int = 3000, limit: int = 5) -> list[Landmark]:
     url = f"https://api.mapbox.com/search/searchbox/v1/category/{category}"
 
     lat_offset = radius_m / 111320
@@ -66,5 +68,11 @@ def get_nearby_landmarks(lat, lon, radius_m, limit=5):
 
 
 if __name__ == "__main__":
-    results = get_nearby_landmarks(41.876903, -87.629268, 3000)  # Chicago
-    print("haha")
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents="The user is at 41.8769, -87.6292 and says: 'I like alcohol'. Find them something interesting nearby.",
+        config=types.GenerateContentConfig(
+            tools=[get_nearby_landmarks],
+        ),
+    )
+    print(response.text)

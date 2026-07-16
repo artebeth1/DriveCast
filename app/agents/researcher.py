@@ -5,6 +5,9 @@ from pydantic import BaseModel
 from google.genai import types
 import asyncio
 client = genai.Client() 
+import logging
+logger = logging.getLogger("drivecast.agents")
+
 
 class Research(BaseModel):
     summary: str
@@ -22,7 +25,7 @@ async def research_landmark(landmark, requirements = ""):
     headers = {"User-Agent": "DriveCast/0.1 (learning project)"}
     async with httpx.AsyncClient() as http:
         wiki_response = await http.get(url, headers=headers)
-        
+
     source_url = ""
     extract = ""
     if wiki_response.status_code != 404:
@@ -43,21 +46,3 @@ async def research_landmark(landmark, requirements = ""):
     )
 
     return gemini_response.parsed, source_url
-
-async def researcher_node(state) -> dict:
-    landmarks = state["predicted_landmarks"]
-    speed = state["speed"]
-    results = await asyncio.gather(*[research_landmark(lm) for lm in landmarks])
-
-    packets = []
-    for landmark, (research, source_url) in zip(landmarks, results):
-        eta = landmark.distance_m / speed if speed > 0 else float("inf")
-        packets.append(ContentPacket(
-            landmark=landmark,
-            eta_seconds=eta,
-            research_summary=research.summary,
-            sources=[source_url] if source_url else [],
-        ))
-
-    print(f"[Researcher] built {len(packets)} content packets")
-    return {"content_packets": packets}
