@@ -1,7 +1,7 @@
 import logging
 from google import genai
 from google.genai import types
-
+from app.memory.narration_memory import already_narrated
 from app.geo.landmarks import get_nearby_landmarks
 from app.geo.distance import bearing, is_ahead
 from app.agents.researcher import research_landmark, ContentPacket
@@ -10,11 +10,12 @@ client = genai.Client()
 logger = logging.getLogger("drivecast.agents")
 
 
-async def agent_node(state) -> dict:
+async def agent_node(state, cache) -> dict:
     lat, lon = state["lat"], state["lon"]
     heading = state["heading"]
     speed = state["speed"]
     requirements = state["requirements"]
+    narrated = state["narrated_landmarks"]
 
     found = {}        # name -> Landmark, everything discovered
     researched = {}   # name -> (Research, source_url), what the agent chose
@@ -53,8 +54,25 @@ async def agent_node(state) -> dict:
         lm = found.get(name)
         if lm is None:
             return f"No landmark named {name} was found."
+
+        if already_narrated(name, narrated):
+            logger.info("memory blocked", extra={"extra_data": {"landmark": name}})
+            return "Already covered this drive."
+
+        query_key = f"{name} | {requirements}"
+        hit = cache.lookup(query_key)
+        if hit is not None:
+            (research_obj, sources), score = hit
+            logger.info("cache hit", extra={"extra_data": {"landmark": name, "similarity": score}})
+            researched[name] = (research_obj, sources)
+            return research_obj.summary
+
+        logger.info("cache miss", extra={"extra_data": {"landmark": name}})
         result, source_url = await research_landmark(lm, requirements)
-        researched[name] = (result, source_url)
+        sources = [source_url] if source_url else []
+        cache.store(query_key, result, sources)
+        logger.info("cache stored", extra={"extra_data": {"landmark": name}})
+        researched[name] = (result, sources)
         return result.summary
 
     prompt = (
@@ -70,14 +88,12 @@ async def agent_node(state) -> dict:
     )
 
     packets = []
-    for name, (result, source_url) in researched.items():
+    for name, (result, sources) in researched.items():
         lm = found[name]
         eta = lm.distance_m / speed if speed > 0 else float("inf")
         packets.append(ContentPacket(
-            landmark=lm,
-            eta_seconds=eta,
-            research_summary=result.summary,
-            sources=[source_url] if source_url else [],
+            landmark=lm, eta_seconds=eta,
+            research_summary=result.summary, sources=sources,
         ))
 
     logger.info("agent built content packets",
