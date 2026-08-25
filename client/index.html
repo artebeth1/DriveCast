@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <button id="play">Play</button>
+  <audio id="audio" controls></audio>
+  <script>
+    const audio = document.getElementById("audio");
+    let sourceBuffer;
+    let queue = [];
+
+    function setupMediaSource() {
+      queue = [];
+      const mediaSource = new MediaSource();
+      audio.src = URL.createObjectURL(mediaSource);
+      mediaSource.addEventListener("sourceopen", () => {
+        sourceBuffer = mediaSource.addSourceBuffer("audio/mpeg");
+        sourceBuffer.addEventListener("updateend", pump);
+      });
+    }
+
+    function pump() {
+      if (queue.length && sourceBuffer && !sourceBuffer.updating) {
+        sourceBuffer.appendBuffer(queue.shift());
+      }
+    }
+
+    setupMediaSource();   // initial
+
+    const ws = new WebSocket("ws://127.0.0.1:8000/ws/audio");
+    ws.binaryType = "arraybuffer";
+
+    ws.onopen = () => {
+      console.log("connected");
+      ws.send("Welcome to Chicago, home of deep dish pizza.");
+      setTimeout(() => ws.send("Now approaching the Willis Tower, once the tallest building in the world."), 3000);
+    };
+
+    ws.onmessage = (event) => {
+      if (typeof event.data === "string") {
+        if (event.data === "FLUSH") {
+          console.log("FLUSH received");
+          sourceBuffer = null;        // drop old buffer reference
+          setupMediaSource();         // fresh pipeline for B
+          audio.play();               // restart playback on the new source
+        }
+        return;
+      }
+      queue.push(new Uint8Array(event.data));
+      pump();
+    };
+
+    ws.onclose = () => console.log("closed");
+    document.getElementById("play").onclick = () => audio.play();
+  </script>
+</body>
+</html>
